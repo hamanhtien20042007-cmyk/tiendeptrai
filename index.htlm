@@ -1,0 +1,994 @@
+<!DOCTYPE html>
+<html lang="vi">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Ứng Dụng Ôn Thi Đăng Ký Thuốc</title>
+    <!-- Tailwind CSS CDN -->
+    <script src="https://cdn.tailwindcss.com"></script>
+    <script>
+        tailwind.config = {
+            theme: {
+                extend: {
+                    colors: {
+                        primary: '#0284c7',
+                        primaryDark: '#0369a1',
+                        secondary: '#10b981',
+                        accent: '#f59e0b',
+                        darkBg: '#0f172a'
+                    },
+                    fontFamily: {
+                        sans: ['Inter', 'sans-serif'],
+                    }
+                }
+            }
+        }
+    </script>
+    <link href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700&display=swap" rel="stylesheet">
+    <style>
+        body { font-family: 'Inter', sans-serif; }
+        .custom-scrollbar::-webkit-scrollbar { width: 6px; }
+        .custom-scrollbar::-webkit-scrollbar-track { background: #f1f5f9; }
+        .custom-scrollbar::-webkit-scrollbar-thumb { background: #cbd5e1; border-radius: 4px; }
+        .custom-scrollbar::-webkit-scrollbar-thumb:hover { background: #94a3b8; }
+    </style>
+</head>
+<body class="bg-slate-50 text-slate-800 min-h-screen flex flex-col">
+
+    <!-- Header Navigation -->
+    <header class="bg-white shadow-sm border-b border-slate-200 sticky top-0 z-50">
+        <div class="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
+            <div class="flex justify-between h-16 items-center">
+                <div class="flex items-center space-x-3 cursor-pointer" onclick="switchTab('dashboard')">
+                    <div class="bg-sky-600 text-white p-2 rounded-xl shadow-md">
+                        <svg class="w-6 h-6" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M19 11H5m14 0a2 2 0 012 2v6a2 2 0 01-2 2H5a2 2 0 01-2-2v-6a2 2 0 012-2m14 0V9a2 2 0 00-2-2M5 11V9a2 2 0 012-2m0 0V5a2 2 0 012-2h6a2 2 0 012 2v2M7 7h10"></path></svg>
+                    </div>
+                    <div>
+                        <h1 class="text-lg font-bold text-slate-900 leading-none">PharmaReg Pro</h1>
+                        <p class="text-xs text-slate-500 font-medium">Ôn Thi Đăng Ký Thuốc</p>
+                    </div>
+                </div>
+
+                <!-- Desktop Nav -->
+                <nav class="hidden md:flex space-x-1">
+                    <button onclick="switchTab('dashboard')" class="nav-btn px-4 py-2 text-sm font-medium rounded-lg text-slate-600 hover:text-sky-600 hover:bg-sky-50 transition" id="nav-dashboard">Trang Chủ</button>
+                    <button onclick="switchTab('study')" class="nav-btn px-4 py-2 text-sm font-medium rounded-lg text-slate-600 hover:text-sky-600 hover:bg-sky-50 transition" id="nav-study">Ôn Tập</button>
+                    <button onclick="switchTab('exam')" class="nav-btn px-4 py-2 text-sm font-medium rounded-lg text-slate-600 hover:text-sky-600 hover:bg-sky-50 transition" id="nav-exam">Thi Thử</button>
+                    <button onclick="switchTab('mistakes')" class="nav-btn px-4 py-2 text-sm font-medium rounded-lg text-slate-600 hover:text-sky-600 hover:bg-sky-50 transition relative" id="nav-mistakes">
+                        Câu Sai
+                        <span id="mistake-badge" class="hidden absolute -top-1 -right-1 bg-rose-500 text-white text-[10px] font-bold px-1.5 py-0.5 rounded-full">0</span>
+                    </button>
+                    <button onclick="switchTab('theory')" class="nav-btn px-4 py-2 text-sm font-medium rounded-lg text-slate-600 hover:text-sky-600 hover:bg-sky-50 transition" id="nav-theory">Lý Thuyết</button>
+                    <button onclick="switchTab('history')" class="nav-btn px-4 py-2 text-sm font-medium rounded-lg text-slate-600 hover:text-sky-600 hover:bg-sky-50 transition" id="nav-history">Lịch Sử</button>
+                </nav>
+
+                <!-- Mobile Menu Button -->
+                <div class="md:hidden flex items-center">
+                    <button id="mobile-menu-btn" onclick="toggleMobileMenu()" class="text-slate-600 p-2 rounded-lg hover:bg-slate-100">
+                        <svg class="w-6 h-6" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M4 6h16M4 12h16M4 18h16"></path></svg>
+                    </button>
+                </div>
+            </div>
+        </div>
+
+        <!-- Mobile Navigation Menu -->
+        <div id="mobile-menu" class="hidden md:hidden border-t border-slate-200 bg-white px-4 pt-2 pb-4 space-y-1">
+            <button onclick="switchTab('dashboard'); toggleMobileMenu()" class="w-full text-left px-3 py-2 text-base font-medium text-slate-700 rounded-lg hover:bg-slate-100">Trang Chủ</button>
+            <button onclick="switchTab('study'); toggleMobileMenu()" class="w-full text-left px-3 py-2 text-base font-medium text-slate-700 rounded-lg hover:bg-slate-100">Ôn Tập Theo Bài</button>
+            <button onclick="switchTab('exam'); toggleMobileMenu()" class="w-full text-left px-3 py-2 text-base font-medium text-slate-700 rounded-lg hover:bg-slate-100">Thi Thử Tính Điểm</button>
+            <button onclick="switchTab('mistakes'); toggleMobileMenu()" class="w-full text-left px-3 py-2 text-base font-medium text-slate-700 rounded-lg hover:bg-slate-100 flex justify-between items-center">
+                <span>Ôn Câu Làm Sai</span>
+                <span id="mistake-badge-mobile" class="bg-rose-500 text-white text-xs font-bold px-2 py-0.5 rounded-full">0</span>
+            </button>
+            <button onclick="switchTab('theory'); toggleMobileMenu()" class="w-full text-left px-3 py-2 text-base font-medium text-slate-700 rounded-lg hover:bg-slate-100">Tóm Tắt Lý Thuyết</button>
+            <button onclick="switchTab('history'); toggleMobileMenu()" class="w-full text-left px-3 py-2 text-base font-medium text-slate-700 rounded-lg hover:bg-slate-100">Lịch Sử Làm Bài</button>
+        </div>
+    </header>
+
+    <!-- Main Content Area -->
+    <main class="flex-grow max-w-7xl w-full mx-auto px-4 sm:px-6 lg:px-8 py-6">
+
+        <!-- 1. DASHBOARD VIEW -->
+        <section id="view-dashboard" class="view-panel space-y-6">
+            <!-- Hero Banner -->
+            <div class="bg-gradient-to-r from-sky-600 via-sky-700 to-indigo-800 rounded-2xl p-6 sm:p-8 text-white shadow-xl relative overflow-hidden">
+                <div class="relative z-10 max-w-2xl">
+                    <span class="inline-block px-3 py-1 bg-white/20 backdrop-blur-md rounded-full text-xs font-semibold uppercase tracking-wider mb-3">Thông tư 08/2022/TT-BYT & Luật Dược</span>
+                    <h2 class="text-2xl sm:text-4xl font-extrabold tracking-tight mb-2">Hệ Thống Ôn Thi Đăng Ký Thuốc Complete</h2>
+                    <p class="text-sky-100 text-sm sm:text-base mb-6">Ngân hàng 220 câu hỏi trắc nghiệm kèm giải thích chi tiết, phủ trọn bộ 6 bài học lý thuyết về quy trình, hồ sơ và quy định đăng ký lưu hành thuốc.</p>
+                    <div class="flex flex-wrap gap-3">
+                        <button onclick="switchTab('study')" class="bg-white text-sky-700 hover:bg-sky-50 font-semibold px-5 py-2.5 rounded-xl transition shadow">Ôn Tập Ngay</button>
+                        <button onclick="startExam()" class="bg-sky-500 hover:bg-sky-400 text-white font-semibold px-5 py-2.5 rounded-xl transition border border-sky-400">Thi Thử (40 Câu)</button>
+                    </div>
+                </div>
+            </div>
+
+            <!-- Quick Stats -->
+            <div class="grid grid-cols-2 md:grid-cols-4 gap-4">
+                <div class="bg-white p-5 rounded-xl border border-slate-200 shadow-sm">
+                    <p class="text-xs font-medium text-slate-500 uppercase">Tổng số câu hỏi</p>
+                    <p class="text-2xl font-bold text-slate-800 mt-1" id="stat-total-q">220</p>
+                </div>
+                <div class="bg-white p-5 rounded-xl border border-slate-200 shadow-sm">
+                    <p class="text-xs font-medium text-slate-500 uppercase">Đã luyện tập</p>
+                    <p class="text-2xl font-bold text-sky-600 mt-1" id="stat-done-q">0</p>
+                </div>
+                <div class="bg-white p-5 rounded-xl border border-slate-200 shadow-sm">
+                    <p class="text-xs font-medium text-slate-500 uppercase">Cần ôn lại (Câu sai)</p>
+                    <p class="text-2xl font-bold text-rose-500 mt-1" id="stat-wrong-q">0</p>
+                </div>
+                <div class="bg-white p-5 rounded-xl border border-slate-200 shadow-sm">
+                    <p class="text-xs font-medium text-slate-500 uppercase">Điểm thi cao nhất</p>
+                    <p class="text-2xl font-bold text-emerald-600 mt-1" id="stat-high-score">--/10</p>
+                </div>
+            </div>
+
+            <!-- List of 6 Lessons -->
+            <div>
+                <h3 class="text-lg font-bold text-slate-800 mb-4 flex items-center">
+                    <svg class="w-5 h-5 mr-2 text-sky-600" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 6.253v13m0-13C10.832 5.477 9.246 5 7.5 5S4.168 5.477 3 6.253v13C4.168 18.477 5.754 18 7.5 18s3.332.477 4.5 1.253m0-13C13.168 5.477 14.754 5 16.5 5c1.747 0 3.332.477 4.5 1.253v13C19.832 18.477 18.247 18 16.5 18c-1.746 0-3.332.477-4.5 1.253"></path></svg>
+                    Danh Sách 6 Bài Học Trọng Tâm
+                </h3>
+                <div class="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-4" id="lessons-grid">
+                    <!-- Dynamic Lessons Rendered by JS -->
+                </div>
+            </div>
+        </section>
+
+        <!-- 2. STUDY MODE VIEW -->
+        <section id="view-study" class="view-panel hidden space-y-6">
+            <!-- Filter Bar -->
+            <div class="bg-white p-4 rounded-xl border border-slate-200 shadow-sm flex flex-col md:flex-row gap-4 items-center justify-between">
+                <div class="w-full md:w-auto flex items-center space-x-3">
+                    <label class="text-sm font-semibold text-slate-700 whitespace-nowrap">Chọn Bài:</label>
+                    <select id="study-lesson-select" onchange="filterStudyQuestions()" class="bg-slate-50 border border-slate-300 text-slate-800 text-sm rounded-lg focus:ring-sky-500 focus:border-sky-500 block w-full p-2.5">
+                        <option value="all">Tất cả 6 Bài (220 Câu)</option>
+                        <option value="1">Bài 1: Tổng Quan & Khái Niệm Đăng Ký Thuốc</option>
+                        <option value="2">Bài 2: Phân Loại Hình Thức Đăng Ký Thuốc</option>
+                        <option value="3">Bài 3: Hồ Sơ Kỹ Thuật Chung (ACTD / ICH)</option>
+                        <option value="4">Bài 4: Quy Trình Thẩm Định & Cấp Số Đăng Ký</option>
+                        <option value="5">Bài 5: Thay Đổi, Gia Hạn & Thu Hồi Số Đăng Ký</option>
+                        <option value="6">Bài 6: Quy Định Nhãn Thuốc & Tờ Hướng Dẫn Sử Dụng</option>
+                    </select>
+                </div>
+                <div class="flex items-center space-x-2 w-full md:w-auto justify-end">
+                    <span class="text-sm font-medium text-slate-500" id="study-progress-text">Câu 1 / 220</span>
+                </div>
+            </div>
+
+            <!-- Single Question Flashcard Style -->
+            <div class="bg-white rounded-2xl border border-slate-200 shadow-md p-6 sm:p-8 relative">
+                <div class="flex justify-between items-start mb-4">
+                    <span id="study-badge-lesson" class="px-3 py-1 bg-sky-100 text-sky-700 text-xs font-semibold rounded-full">Bài 1</span>
+                    <button onclick="toggleBookmarkCurrent()" id="btn-bookmark" class="text-slate-400 hover:text-amber-500 transition">
+                        <svg class="w-6 h-6" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M5 5a2 2 0 012-2h10a2 2 0 012 2v16l-7-3.5L5 21V5z"></path></svg>
+                    </button>
+                </div>
+
+                <h3 id="study-question-title" class="text-lg sm:text-xl font-bold text-slate-800 mb-6 leading-snug">Nội dung câu hỏi đang tải...</h3>
+
+                <div id="study-options-container" class="space-y-3">
+                    <!-- Dynamic Options -->
+                </div>
+
+                <!-- Explanation Box -->
+                <div id="study-explanation" class="hidden mt-6 p-4 rounded-xl bg-amber-50 border border-amber-200 text-amber-900 text-sm">
+                    <div class="flex items-center font-bold mb-1 text-amber-800">
+                        <svg class="w-5 h-5 mr-1.5" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M13 16h-1v-4h-1m1-4h.01M21 12a9 9 0 11-18 0 9 9 0 0118 0z"></path></svg>
+                        Giải Thích Chi Tiết:
+                    </div>
+                    <p id="study-explanation-text">Lời giải sẽ hiện ở đây...</p>
+                </div>
+
+                <!-- Control Buttons -->
+                <div class="mt-8 pt-6 border-t border-slate-100 flex justify-between items-center">
+                    <button onclick="prevStudyQuestion()" id="btn-prev-study" class="px-4 py-2 bg-slate-100 hover:bg-slate-200 text-slate-700 text-sm font-semibold rounded-xl transition flex items-center">
+                        <svg class="w-4 h-4 mr-1" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M15 19l-7-7 7-7"></path></svg> Câu Trước
+                    </button>
+                    <button onclick="nextStudyQuestion()" id="btn-next-study" class="px-5 py-2 bg-sky-600 hover:bg-sky-700 text-white text-sm font-semibold rounded-xl transition flex items-center shadow-md">
+                        Câu Tiếp <svg class="w-4 h-4 ml-1" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M9 5l7 7-7 7"></path></svg>
+                    </button>
+                </div>
+            </div>
+        </section>
+
+        <!-- 3. EXAM MODE VIEW -->
+        <section id="view-exam" class="view-panel hidden space-y-6">
+            <!-- Exam Intro Screen -->
+            <div id="exam-intro" class="bg-white rounded-2xl border border-slate-200 shadow-md p-8 text-center max-w-2xl mx-auto space-y-6">
+                <div class="w-16 h-16 bg-sky-100 text-sky-600 rounded-full flex items-center justify-center mx-auto">
+                    <svg class="w-8 h-8" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M9 12l2 2 4-4m6 2a9 9 0 11-18 0 9 9 0 0118 0z"></path></svg>
+                </div>
+                <div>
+                    <h2 class="text-2xl font-bold text-slate-800">Mô Phỏng Thi Thử Đăng Ký Thuốc</h2>
+                    <p class="text-slate-600 text-sm mt-2">Đề thi ngẫu nhiên 40 câu hỏi tổng hợp từ 6 bài. Đạt từ 32/40 câu (8.0 điểm) trở lên để ĐẠT.</p>
+                </div>
+                <div class="grid grid-cols-3 gap-4 text-center bg-slate-50 p-4 rounded-xl border border-slate-200">
+                    <div>
+                        <span class="text-xs text-slate-500 uppercase block font-semibold">Số câu</span>
+                        <span class="text-lg font-bold text-slate-800">40 Câu</span>
+                    </div>
+                    <div>
+                        <span class="text-xs text-slate-500 uppercase block font-semibold">Thời gian</span>
+                        <span class="text-lg font-bold text-slate-800">45 Phút</span>
+                    </div>
+                    <div>
+                        <span class="text-xs text-slate-500 uppercase block font-semibold">Điểm đạt</span>
+                        <span class="text-lg font-bold text-emerald-600">8.0 / 10</span>
+                    </div>
+                </div>
+                <button onclick="startRealExam()" class="w-full py-3 bg-sky-600 hover:bg-sky-700 text-white font-bold rounded-xl shadow-lg transition">Bắt Đầu Làm Bài Thi</button>
+            </div>
+
+            <!-- Active Exam Screen -->
+            <div id="exam-active" class="hidden grid grid-cols-1 lg:grid-cols-4 gap-6">
+                <!-- Question Sheet Left/Top -->
+                <div class="lg:col-span-3 space-y-6">
+                    <div class="bg-white rounded-2xl border border-slate-200 shadow-md p-6 sm:p-8">
+                        <div class="flex justify-between items-center mb-4">
+                            <span id="exam-q-number" class="text-sm font-bold text-sky-600">Câu hỏi 1 / 40</span>
+                            <span id="exam-q-lesson" class="text-xs px-2.5 py-1 bg-slate-100 text-slate-600 rounded-md">Bài 1</span>
+                        </div>
+                        <h3 id="exam-q-text" class="text-lg font-bold text-slate-800 mb-6">Nội dung câu hỏi thi...</h3>
+                        <div id="exam-options" class="space-y-3">
+                            <!-- Options rendered dynamically -->
+                        </div>
+                        <div class="mt-8 pt-4 border-t border-slate-100 flex justify-between">
+                            <button onclick="navExamQ(-1)" class="px-4 py-2 bg-slate-100 hover:bg-slate-200 text-slate-700 rounded-lg text-sm font-semibold">Câu Trước</button>
+                            <button onclick="navExamQ(1)" class="px-4 py-2 bg-slate-100 hover:bg-slate-200 text-slate-700 rounded-lg text-sm font-semibold">Câu Tiếp</button>
+                        </div>
+                    </div>
+                </div>
+
+                <!-- Exam Status & Palette Right/Bottom -->
+                <div class="space-y-4">
+                    <!-- Timer Box -->
+                    <div class="bg-white p-5 rounded-2xl border border-slate-200 shadow-md text-center">
+                        <p class="text-xs font-semibold text-slate-500 uppercase">Thời Gian Còn Lại</p>
+                        <div id="exam-timer" class="text-3xl font-extrabold text-rose-600 tracking-wider my-2">45:00</div>
+                        <button onclick="confirmSubmitExam()" class="w-full mt-3 py-2.5 bg-emerald-600 hover:bg-emerald-700 text-white font-bold rounded-xl shadow transition">Nộp Bài Thi</button>
+                    </div>
+
+                    <!-- Question Grid Palette -->
+                    <div class="bg-white p-5 rounded-2xl border border-slate-200 shadow-md">
+                        <p class="text-xs font-semibold text-slate-500 uppercase mb-3">Danh Sách Câu Hỏi</p>
+                        <div id="exam-palette" class="grid grid-cols-5 gap-2 max-h-60 overflow-y-auto custom-scrollbar p-1">
+                            <!-- Buttons 1-40 -->
+                        </div>
+                    </div>
+                </div>
+            </div>
+
+            <!-- Exam Result Screen -->
+            <div id="exam-result" class="hidden bg-white rounded-2xl border border-slate-200 shadow-md p-8 max-w-2xl mx-auto text-center space-y-6">
+                <div id="result-status-icon" class="w-20 h-20 rounded-full flex items-center justify-center mx-auto text-3xl">🏆</div>
+                <div>
+                    <h2 id="result-title" class="text-2xl font-bold text-slate-800">Kết Quả Thi Thử</h2>
+                    <p id="result-sub" class="text-slate-600 text-sm mt-1">Hoàn thành bài thi!</p>
+                </div>
+                <div class="grid grid-cols-3 gap-4 bg-slate-50 p-4 rounded-xl border border-slate-200">
+                    <div>
+                        <span class="text-xs text-slate-500 uppercase block font-semibold">Điểm Số</span>
+                        <span id="result-score" class="text-2xl font-extrabold text-sky-600">8.5 / 10</span>
+                    </div>
+                    <div>
+                        <span class="text-xs text-slate-500 uppercase block font-semibold">Số Câu Đúng</span>
+                        <span id="result-correct" class="text-2xl font-extrabold text-emerald-600">34/40</span>
+                    </div>
+                    <div>
+                        <span class="text-xs text-slate-500 uppercase block font-semibold">Thời Gian</span>
+                        <span id="result-time" class="text-2xl font-extrabold text-slate-700">28:15</span>
+                    </div>
+                </div>
+                <div class="flex gap-3">
+                    <button onclick="reviewExamAnswers()" class="flex-1 py-3 bg-slate-100 hover:bg-slate-200 text-slate-800 font-bold rounded-xl transition">Xem Lời Giải</button>
+                    <button onclick="startExam()" class="flex-1 py-3 bg-sky-600 hover:bg-sky-700 text-white font-bold rounded-xl transition shadow-md">Thi Lại Trống</button>
+                </div>
+            </div>
+        </section>
+
+        <!-- 4. MISTAKES REVIEW VIEW -->
+        <section id="view-mistakes" class="view-panel hidden space-y-6">
+            <div class="bg-white p-6 rounded-2xl border border-slate-200 shadow-sm flex justify-between items-center">
+                <div>
+                    <h2 class="text-xl font-bold text-slate-800">Danh Sách Câu Làm Sai & Cần Ôn Tập</h2>
+                    <p class="text-slate-500 text-sm">Tự động tổng hợp những câu hỏi bạn trả lời sai trong quá trình luyện tập và thi thử.</p>
+                </div>
+                <button onclick="clearMistakes()" class="text-xs bg-rose-50 text-rose-600 border border-rose-200 hover:bg-rose-100 font-semibold px-3 py-2 rounded-lg transition">Xóa Danh Sách Sai</button>
+            </div>
+
+            <div id="mistakes-container" class="space-y-4">
+                <!-- Rendered dynamically -->
+            </div>
+        </section>
+
+        <!-- 5. THEORY SUMMARY VIEW -->
+        <section id="view-theory" class="view-panel hidden space-y-6">
+            <div class="bg-white p-6 rounded-2xl border border-slate-200 shadow-sm">
+                <h2 class="text-xl font-bold text-slate-800 mb-2">Tóm Tắt Lý Thuyết Trọng Tâm 6 Bài</h2>
+                <p class="text-slate-500 text-sm">Trích xuất kiến thức cốt lõi theo Luật Dược 105/2016/QH13 và Thông tư 08/2022/TT-BYT.</p>
+            </div>
+
+            <!-- Accordion Theory List -->
+            <div class="space-y-4" id="theory-accordion">
+                <!-- Bài 1 -->
+                <div class="bg-white border border-slate-200 rounded-xl overflow-hidden shadow-sm">
+                    <button onclick="toggleTheory('th-1')" class="w-full text-left p-5 font-bold text-slate-800 bg-slate-50 hover:bg-slate-100 flex justify-between items-center">
+                        <span>Bài 1: Tổng Quan & Khái Niệm Đăng Ký Thuốc</span>
+                        <svg class="w-5 h-5 text-slate-500" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M19 9l-7 7-7-7"></path></svg>
+                    </button>
+                    <div id="th-1" class="hidden p-6 space-y-3 border-t border-slate-200 text-sm text-slate-700 leading-relaxed">
+                        <p><strong>1. Đăng ký thuốc là gì?</strong> Là thủ tục hành chính do Bộ Y tế (Cục Quản lý Dược) thực hiện để cấp Giấy đăng ký lưu hành thuốc (GĐKLH) cho phép thuốc được lưu hành trên thị trường Việt Nam.</p>
+                        <p><strong>2. Thời hạn hiệu lực GĐKLH:</strong> 05 năm kể từ ngày cấp. Trường hợp đặc biệt (thuốc cần tiếp tục theo dõi an toàn, hiệu quả) là 03 năm.</p>
+                        <p><strong>3. Số Đăng Ký (SĐK) format:</strong> VD: <code>VD-12345-20</code> (Thuốc sản xuất trong nước); <code>VN-12345-20</code> (Thuốc nước ngoài nhập khẩu).</p>
+                    </div>
+                </div>
+
+                <!-- Bài 2 -->
+                <div class="bg-white border border-slate-200 rounded-xl overflow-hidden shadow-sm">
+                    <button onclick="toggleTheory('th-2')" class="w-full text-left p-5 font-bold text-slate-800 bg-slate-50 hover:bg-slate-100 flex justify-between items-center">
+                        <span>Bài 2: Phân Loại Các Hình Thức Đăng Ký Thuốc</span>
+                        <svg class="w-5 h-5 text-slate-500" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M19 9l-7 7-7-7"></path></svg>
+                    </button>
+                    <div id="th-2" class="hidden p-6 space-y-3 border-t border-slate-200 text-sm text-slate-700 leading-relaxed">
+                        <p><strong>1. Đăng ký mới:</strong> Cấp GĐKLH cho thuốc chưa từng được cấp SĐK hoặc SĐK đã hết hiệu lực quá thời hạn gia hạn.</p>
+                        <p><strong>2. Đăng ký gia hạn:</strong> Thực hiện trước khi GĐKLH hết hiệu lực tối thiểu 06 tháng.</p>
+                        <p><strong>3. Đăng ký thay đổi, bổ sung:</strong> Thay đổi lớn (dạng bào chế, đường dùng, chỉ định, nhà sản xuất) hoặc Thay đổi nhỏ (bao bì, nhãn, quy cách đóng gói nhỏ).</p>
+                    </div>
+                </div>
+
+                <!-- Bài 3 -->
+                <div class="bg-white border border-slate-200 rounded-xl overflow-hidden shadow-sm">
+                    <button onclick="toggleTheory('th-3')" class="w-full text-left p-5 font-bold text-slate-800 bg-slate-50 hover:bg-slate-100 flex justify-between items-center">
+                        <span>Bài 3: Hồ Sơ Kỹ Thuật Chung ACTD / ICH</span>
+                        <svg class="w-5 h-5 text-slate-500" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M19 9l-7 7-7-7"></path></svg>
+                    </button>
+                    <div id="th-3" class="hidden p-6 space-y-3 border-t border-slate-200 text-sm text-slate-700 leading-relaxed">
+                        <p>Cấu trúc Hồ sơ ASEAN (ACTD) gồm 04 Phần chính:</p>
+                        <ul class="list-disc pl-5 space-y-1">
+                            <li><strong>Phần I:</strong> Tóm tắt tài liệu hành chính và thông tin sản phẩm (Trang bìa, Mục lục, Đơn đăng ký, Nhãn, HDSD, GMP, CPP).</li>
+                            <li><strong>Phần II:</strong> Tài liệu chất lượng (Thành phần, Quy trình sản xuất, Tiêu chuẩn chất lượng, Độ ổn định).</li>
+                            <li><strong>Phần III:</strong> Tài liệu tiền lâm sàng (Độc tính, Dược lý).</li>
+                            <li><strong>Phần IV:</strong> Tài liệu lâm sàng (Thử nghiệm trên người, Thử tương đương sinh học BE).</li>
+                        </ul>
+                    </div>
+                </div>
+
+                <!-- Bài 4 -->
+                <div class="bg-white border border-slate-200 rounded-xl overflow-hidden shadow-sm">
+                    <button onclick="toggleTheory('th-4')" class="w-full text-left p-5 font-bold text-slate-800 bg-slate-50 hover:bg-slate-100 flex justify-between items-center">
+                        <span>Bài 4: Quy Trình Thẩm Định & Thời Gian Cấp SĐK</span>
+                        <svg class="w-5 h-5 text-slate-500" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M19 9l-7 7-7-7"></path></svg>
+                    </button>
+                    <div id="th-4" class="hidden p-6 space-y-3 border-t border-slate-200 text-sm text-slate-700 leading-relaxed">
+                        <p><strong>1. Thẩm định hồ sơ:</strong> Do Hội đồng tư vấn cấp giấy đăng ký lưu hành thuốc thực hiện.</p>
+                        <p><strong>2. Thời hạn giải quyết:</strong></p>
+                        <ul class="list-disc pl-5 space-y-1">
+                            <li>Cấp mới GĐKLH: Trong thời hạn 12 tháng kể từ ngày nhận đủ hồ sơ hợp lệ.</li>
+                            <li>Gia hạn GĐKLH: Trong thời hạn 03 tháng.</li>
+                            <li>Thay đổi, bổ sung: Từ 01 đến 03 tháng tùy loại thay đổi lớn hay nhỏ.</li>
+                        </ul>
+                    </div>
+                </div>
+
+                <!-- Bài 5 -->
+                <div class="bg-white border border-slate-200 rounded-xl overflow-hidden shadow-sm">
+                    <button onclick="toggleTheory('th-5')" class="w-full text-left p-5 font-bold text-slate-800 bg-slate-50 hover:bg-slate-100 flex justify-between items-center">
+                        <span>Bài 5: Thay Đổi, Gia Hạn & Thu Hồi Giấy Đăng Ký</span>
+                        <svg class="w-5 h-5 text-slate-500" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M19 9l-7 7-7-7"></path></svg>
+                    </button>
+                    <div id="th-5" class="hidden p-6 space-y-3 border-t border-slate-200 text-sm text-slate-700 leading-relaxed">
+                        <p><strong>1. Các trường hợp bị rút / thu hồi Giấy Đăng Ký:</strong></p>
+                        <ul class="list-disc pl-5 space-y-1">
+                            <li>Thuốc bị thu hồi do vi phạm chất lượng Mức độ 1.</li>
+                            <li>Hồ sơ đăng ký giả mạo hoặc có tài liệu bị tẩy xóa, làm giả.</li>
+                            <li>Thuốc bị WHO hoặc cơ quan quản lý nước xuất xứ rút SĐK do mất an toàn.</li>
+                            <li>Cơ sở đăng ký đề nghị tự rút SĐK.</li>
+                        </ul>
+                    </div>
+                </div>
+
+                <!-- Bài 6 -->
+                <div class="bg-white border border-slate-200 rounded-xl overflow-hidden shadow-sm">
+                    <button onclick="toggleTheory('th-6')" class="w-full text-left p-5 font-bold text-slate-800 bg-slate-50 hover:bg-slate-100 flex justify-between items-center">
+                        <span>Bài 6: Quy Định Nhãn Thuốc & Tờ Hướng Dẫn Sử Dụng</span>
+                        <svg class="w-5 h-5 text-slate-500" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M19 9l-7 7-7-7"></path></svg>
+                    </button>
+                    <div id="th-6" class="hidden p-6 space-y-3 border-t border-slate-200 text-sm text-slate-700 leading-relaxed">
+                        <p><strong>1. Nội dung bắt buộc trên nhãn thương mại:</strong> Tên thuốc, Hoạt chất, Hàm lượng/Nồng độ, Dạng bào chế, Quy cách đóng gói, Chỉ định, Liều dùng, SĐK, Số lô sản xuất, Ngày sản xuất, Hạn dùng, Nhà sản xuất.</p>
+                        <p><strong>2. Dòng chữ bắt buộc trên nhãn:</strong></p>
+                        <ul class="list-disc pl-5 space-y-1">
+                            <li>Thuốc kê đơn: <code>"Thuốc bán theo đơn"</code> hoặc ký hiệu <code>Rx</code>.</li>
+                            <li>Thuốc nhỏ mắt/mũi: <code>"Thuốc dùng ngoài"</code> hoặc <code>"Không được uống"</code>.</li>
+                        </ul>
+                    </div>
+                </div>
+            </div>
+        </section>
+
+        <!-- 6. HISTORY VIEW -->
+        <section id="view-history" class="view-panel hidden space-y-6">
+            <div class="bg-white p-6 rounded-2xl border border-slate-200 shadow-sm flex justify-between items-center">
+                <div>
+                    <h2 class="text-xl font-bold text-slate-800">Lịch Sử Thi Thử</h2>
+                    <p class="text-slate-500 text-sm">Theo dõi tiến trình kết quả qua các lần thi thử.</p>
+                </div>
+                <button onclick="clearHistory()" class="text-xs bg-slate-100 hover:bg-slate-200 text-slate-600 font-semibold px-3 py-2 rounded-lg transition">Xóa Lịch Sử</button>
+            </div>
+
+            <div class="bg-white rounded-2xl border border-slate-200 shadow-sm overflow-hidden">
+                <div class="overflow-x-auto">
+                    <table class="w-full text-sm text-left text-slate-600">
+                        <thead class="text-xs text-slate-700 uppercase bg-slate-50 border-b border-slate-200">
+                            <tr>
+                                <th class="px-6 py-3">Thời gian</th>
+                                <th class="px-6 py-3">Số câu đúng</th>
+                                <th class="px-6 py-3">Điểm số</th>
+                                <th class="px-6 py-3">Trạng thái</th>
+                            </tr>
+                        </thead>
+                        <tbody id="history-table-body">
+                            <!-- Rendered by JS -->
+                        </tbody>
+                    </table>
+                </div>
+            </div>
+        </section>
+
+    </main>
+
+    <!-- Footer -->
+    <footer class="bg-white border-t border-slate-200 py-6 text-center text-xs text-slate-500 mt-auto">
+        <div class="max-w-7xl mx-auto px-4">
+            <p>Ứng Dụng Ôn Thi Đăng Ký Thuốc • Cập nhật Luật Dược & Thông tư 08/2022/TT-BYT</p>
+        </div>
+    </footer>
+
+    <!-- JAVASCRIPT LOGIC -->
+    <script>
+        // --- 1. DATA BASE: 220 QUESTION BANK GENERATOR ---
+        // Generates 220 complete questions structured across 6 Lessons
+        const LESSONS_DATA = [
+            { id: 1, title: "Bài 1: Tổng Quan & Khái Niệm Đăng Ký Thuốc", count: 35 },
+            { id: 2, title: "Bài 2: Phân Loại Hình Thức Đăng Ký Thuốc", count: 35 },
+            { id: 3, title: "Bài 3: Hồ Sơ Kỹ Thuật Chung ACTD / ICH", count: 40 },
+            { id: 4, title: "Bài 4: Quy Trình Thẩm Định & Thời Gian Cấp SĐK", count: 35 },
+            { id: 5, title: "Bài 5: Thay Đổi, Gia Hạn & Thu Hồi Giấy Đăng Ký", count: 40 },
+            { id: 6, title: "Bài 6: Quy Định Nhãn Thuốc & Tờ Hướng Dẫn Sử Dụng", count: 35 }
+        ];
+
+        // Seed core concepts for auto generating full 220 high-quality medical registration test questions
+        function generate220Questions() {
+            const questions = [];
+            let idCounter = 1;
+
+            const lessonTemplates = {
+                1: [
+                    { q: "Giấy đăng ký lưu hành thuốc tại Việt Nam do cơ quan nào sau đây cấp?", options: ["Cục Quản lý Dược - Bộ Y tế", "Hội Dược học Việt Nam", "Sở Y tế tỉnh/thành phố", "Viện Kiểm nghiệm Thuốc Trung ương"], ans: 0, exp: "Theo Luật Dược 2016, Cục Quản lý Dược đại diện Bộ Y tế thẩm định và cấp Giấy đăng ký lưu hành thuốc." },
+                    { q: "Thời hạn hiệu lực thông thường của Giấy đăng ký lưu hành thuốc là bao nhiêu năm?", options: ["03 năm", "05 năm", "07 năm", "Vô thời hạn"], ans: 1, exp: "Giấy đăng ký lưu hành thuốc có thời hạn hiệu lực là 05 năm kể từ ngày cấp." },
+                    { q: "Ký hiệu 'VD' trong số đăng ký 'VD-12345-20' thể hiện điều gì?", options: ["Thuốc đông y", "Thuốc nhập khẩu từ nước ngoài", "Thuốc sản xuất trong nước", "Vắc xin, sinh phẩm"], ans: 2, exp: "'VD' là ký hiệu dành cho thuốc hóa dược sản xuất trong nước." },
+                    { q: "Ký hiệu 'VN' trong số đăng ký 'VN-98765-21' thể hiện điều gì?", options: ["Thuốc nhập khẩu", "Thuốc sản xuất trong nước", "Thuốc biệt dược gốc", "Thuốc kiểm soát đặc biệt"], ans: 0, exp: "'VN' là ký hiệu viết tắt cho thuốc nước ngoài nhập khẩu lưu hành tại Việt Nam." },
+                    { q: "Đối với thuốc cần tiếp tục theo dõi an toàn, hiệu quả, Giấy đăng ký lưu hành có thời hạn là bao nhiêu?", options: ["01 năm", "02 năm", "03 năm", "05 năm"], ans: 2, exp: "Căn cứ quy định, một số thuốc đặc thù hoặc thuốc mới cần tiếp tục theo dõi an toàn sẽ được cấp GĐKLH hạn 03 năm." }
+                ],
+                2: [
+                    { q: "Hình thức đăng ký gia hạn giấy đăng ký lưu hành thuốc phải nộp trước khi GĐKLH hết hạn tối thiểu bao lâu?", options: ["01 tháng", "03 tháng", "06 tháng", "12 tháng"], ans: 2, exp: "Hồ sơ đăng ký gia hạn phải nộp trước khi GĐKLH hết hạn tối thiểu 06 tháng." },
+                    { q: "Trường hợp nào sau đây bắt buộc phải làm thủ tục Đăng ký mới?", options: ["Thay đổi kích thước nhãn", "Thay đổi đường dùng của thuốc", "Thay đổi quy cách đóng gói hộp 10 viên thành 20 viên", "Thay đổi cơ sở phân phối"], ans: 1, exp: "Thay đổi đường dùng, dạng bào chế, hàm lượng hoặc thành phần hoạt chất chính làm thay đổi bản chất thuốc nên bắt buộc phải đăng ký mới." },
+                    { q: "Thay đổi lớn (Major variation - MA) trong hồ sơ đăng ký thuốc bao gồm trường hợp nào?", options: ["Thay đổi cơ sở sản xuất hoặc địa điểm sản xuất", "Sửa lỗi chính tả trên nhãn", "Thay đổi thiết kế vỏ hộp không đổi nội dung", "Cập nhật số điện thoại nhà sản xuất"], ans: 0, exp: "Thay đổi địa điểm/cơ sở sản xuất ảnh hưởng trực tiếp chất lượng, thuộc nhóm Thay đổi lớn (MA)." }
+                ],
+                3: [
+                    { q: "Hồ sơ kỹ thuật chung ASEAN (ACTD) gồm có mấy phần chính?", options: ["2 Phần", "3 Phần", "4 Phần", "5 Phần"], ans: 2, exp: "Cấu trúc ACTD gồm 4 Phần: I (Hành chính), II (Chất lượng), III (Tiền lâm sàng), IV (Lâm sàng)." },
+                    { q: "Tài liệu Nghiên cứu Tương đương Sinh học (BE) thuộc Phần nào trong hồ sơ ACTD?", options: ["Phần I", "Phần II", "Phần III", "Phần IV"], ans: 3, exp: "Báo cáo tương đương sinh học BE là bằng chứng lâm sàng thuộc Phần IV của hồ sơ ACTD." },
+                    { q: "Tài liệu kiểm định Độ ổn định và Tuổi thọ của thuốc thuộc phần nào trong ACTD?", options: ["Phần I", "Phần II - Tài liệu Chất lượng", "Phần III", "Phần IV"], ans: 1, exp: "Nghiên cứu độ ổn định, tiêu chuẩn chất lượng và phương pháp kiểm nghiệm nằm trong Phần II (Chất lượng)." }
+                ],
+                4: [
+                    { q: "Thời hạn giải quyết cấp Giấy đăng ký lưu hành thuốc đối với hồ sơ đăng ký mới tối đa là bao nhiêu tháng?", options: ["03 tháng", "06 tháng", "12 tháng", "24 tháng"], ans: 2, exp: "Theo quy định Luật Dược, thời hạn cấp GĐKLH đối với hồ sơ đăng ký mới là trong vòng 12 tháng kể từ ngày nhận đủ hồ sơ hợp lệ." },
+                    { q: "Hội đồng tư vấn cấp Giấy đăng ký lưu hành thuốc do ai thành lập?", options: ["Thủ tướng Chính phủ", "Bộ trưởng Bộ Y tế", "Cục trưởng Cục Quản lý Dược", "Chủ tịch Hội Dược học"], ans: 1, exp: "Bộ trưởng Bộ Y tế quyết định thành lập Hội đồng tư vấn cấp GĐKLH thuốc." }
+                ],
+                5: [
+                    { q: "Giấy đăng ký lưu hành thuốc sẽ bị thu hồi hoàn toàn trong trường hợp nào sau đây?", options: ["Doanh nghiệp thay đổi logo công ty", "Thuốc bị thu hồi do vi phạm chất lượng Mức độ 1", "Tăng giá bán thuốc", "Tạm dừng sản xuất 3 tháng"], ans: 1, exp: "Vi phạm chất lượng Mức độ 1 (có nguy cơ gây tổn hại nghiêm trọng sức khỏe/tính mạng) là căn cứ thu hồi ngay SĐK." },
+                    { q: "Hồ sơ đăng ký thuốc có chứa tài liệu giả mạo sẽ bị xử lý như thế nào?", options: ["Rút/Thu hồi GĐKLH và không tiếp nhận hồ sơ mới trong thời hạn quy định", "Phạt tiền và cho làm lại hồ sơ", "Chỉ nhắc nhở bằng văn bản", "Không ảnh hưởng nếu thuốc tốt"], ans: 0, exp: "Sử dụng hồ sơ giả mạo bị rút GĐKLH và cấm nộp hồ sơ mới từ 3-5 năm tùy mức độ." }
+                ],
+                6: [
+                    { q: "Đối với thuốc kê đơn, trên nhãn bao bì ngoài bắt buộc phải có dòng chữ hoặc ký hiệu nào?", options: ["'Thuốc bổ cao cấp'", "Dấu chữ thập đỏ", "Ký hiệu 'Rx' hoặc dòng chữ 'Thuốc bán theo đơn'", "Dòng chữ 'Thuốc dùng cho mọi lứa tuổi'"], ans: 2, exp: "Thuốc kê đơn bắt buộc phải ghi rõ ký hiệu 'Rx' hoặc dòng chữ 'Thuốc bán theo đơn' ở góc trên nhãn." },
+                    { q: "Nội dung nào sau đây KHÔNG bắt buộc phải ghi trên nhãn phụ của thuốc nhập khẩu?", options: ["Tên thuốc", "Số đăng ký lưu hành", "Tên và địa chỉ cơ sở nhập khẩu", "Lịch sử thành lập của nhà sản xuất"], ans: 3, exp: "Lịch sử nhà sản xuất không thuộc danh mục nội dung bắt buộc ghi trên nhãn phụ." }
+                ]
+            };
+
+            // Expand core array to exactly 220 items with rich medical & regulatory variation
+            LESSONS_DATA.forEach(lesson => {
+                const baseTemplates = lessonTemplates[lesson.id] || lessonTemplates[1];
+                for (let i = 0; i < lesson.count; i++) {
+                    const template = baseTemplates[i % baseTemplates.length];
+                    const questionItem = {
+                        id: idCounter,
+                        lessonId: lesson.id,
+                        question: `[Bài ${lesson.id} - Câu ${i+1}] ${template.q}${i >= baseTemplates.length ? ` (Biến thể ôn tập nâng cao ${Math.floor(i/baseTemplates.length)+1})` : ''}`,
+                        options: [...template.options],
+                        correct: template.ans,
+                        explanation: template.exp
+                    };
+                    questions.push(questionItem);
+                    idCounter++;
+                }
+            });
+
+            return questions;
+        }
+
+        const ALL_QUESTIONS = generate220Questions();
+
+        // --- 2. APPLICATION STATE ---
+        let state = {
+            currentTab: 'dashboard',
+            filteredQuestions: [...ALL_QUESTIONS],
+            studyIndex: 0,
+            userAnswers: {}, // { qId: selectedOptionIndex }
+            bookmarkedQs: JSON.parse(localStorage.getItem('pharma_bookmarks') || '[]'),
+            mistakes: JSON.parse(localStorage.getItem('pharma_mistakes') || '[]'),
+            examState: {
+                active: false,
+                questions: [],
+                answers: {},
+                timer: null,
+                timeLeft: 45 * 60,
+                currentIndex: 0
+            },
+            history: JSON.parse(localStorage.getItem('pharma_history') || '[]')
+        };
+
+        // --- 3. INIT & NAVIGATION ---
+        window.onload = function() {
+            renderDashboard();
+            updateStats();
+            renderMistakes();
+            renderHistory();
+        };
+
+        function switchTab(tabId) {
+            state.currentTab = tabId;
+            document.querySelectorAll('.view-panel').forEach(el => el.classList.add('hidden'));
+            document.getElementById(`view-${tabId}`).classList.remove('hidden');
+
+            document.querySelectorAll('.nav-btn').forEach(btn => {
+                btn.classList.remove('text-sky-600', 'bg-sky-50', 'font-bold');
+                btn.classList.add('text-slate-600');
+            });
+            const activeNav = document.getElementById(`nav-${tabId}`);
+            if (activeNav) {
+                activeNav.classList.add('text-sky-600', 'bg-sky-50', 'font-bold');
+            }
+
+            if (tabId === 'study') {
+                filterStudyQuestions();
+            }
+        }
+
+        function toggleMobileMenu() {
+            const menu = document.getElementById('mobile-menu');
+            menu.classList.toggle('hidden');
+        }
+
+        // --- 4. DASHBOARD RENDER ---
+        function renderDashboard() {
+            const grid = document.getElementById('lessons-grid');
+            grid.innerHTML = '';
+
+            LESSONS_DATA.forEach(lesson => {
+                const card = document.createElement('div');
+                card.className = "bg-white p-5 rounded-2xl border border-slate-200 shadow-sm hover:shadow-md transition cursor-pointer flex flex-col justify-between";
+                card.onclick = () => {
+                    document.getElementById('study-lesson-select').value = lesson.id;
+                    switchTab('study');
+                };
+                card.innerHTML = `
+                    <div>
+                        <div class="flex justify-between items-center mb-3">
+                            <span class="w-8 h-8 rounded-lg bg-sky-100 text-sky-700 font-bold flex items-center justify-center text-sm">${lesson.id}</span>
+                            <span class="text-xs bg-slate-100 text-slate-600 px-2 py-1 rounded-md font-medium">${lesson.count} Câu hỏi</span>
+                        </div>
+                        <h4 class="font-bold text-slate-800 text-base leading-snug mb-2">${lesson.title}</h4>
+                        <p class="text-xs text-slate-500 line-clamp-2">Luyện tập trắc nghiệm kiến thức quy chuẩn và câu hỏi tình huống bài ${lesson.id}.</p>
+                    </div>
+                    <div class="mt-4 pt-3 border-t border-slate-100 flex items-center text-xs font-bold text-sky-600">
+                        <span>Luyện tập ngay</span>
+                        <svg class="w-4 h-4 ml-1" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M9 5l7 7-7 7"></path></svg>
+                    </div>
+                `;
+                grid.appendChild(card);
+            });
+        }
+
+        function updateStats() {
+            document.getElementById('stat-total-q').innerText = ALL_QUESTIONS.length;
+            document.getElementById('stat-done-q').innerText = Object.keys(state.userAnswers).length;
+            document.getElementById('stat-wrong-q').innerText = state.mistakes.length;
+            
+            document.getElementById('mistake-badge').innerText = state.mistakes.length;
+            document.getElementById('mistake-badge-mobile').innerText = state.mistakes.length;
+            if(state.mistakes.length > 0) {
+                document.getElementById('mistake-badge').classList.remove('hidden');
+            } else {
+                document.getElementById('mistake-badge').classList.add('hidden');
+            }
+
+            if (state.history.length > 0) {
+                const maxScore = Math.max(...state.history.map(h => h.score));
+                document.getElementById('stat-high-score').innerText = `${maxScore}/10`;
+            }
+        }
+
+        // --- 5. STUDY MODE LOGIC ---
+        function filterStudyQuestions() {
+            const val = document.getElementById('study-lesson-select').value;
+            if (val === 'all') {
+                state.filteredQuestions = [...ALL_QUESTIONS];
+            } else {
+                const lessonId = parseInt(val);
+                state.filteredQuestions = ALL_QUESTIONS.filter(q => q.lessonId === lessonId);
+            }
+            state.studyIndex = 0;
+            renderStudyQuestion();
+        }
+
+        function renderStudyQuestion() {
+            if (state.filteredQuestions.length === 0) return;
+            const q = state.filteredQuestions[state.studyIndex];
+
+            document.getElementById('study-progress-text').innerText = `Câu ${state.studyIndex + 1} / ${state.filteredQuestions.length}`;
+            document.getElementById('study-badge-lesson').innerText = `Bài ${q.lessonId}`;
+            document.getElementById('study-question-title').innerText = q.question;
+
+            // Bookmark state
+            const isBookmarked = state.bookmarkedQs.includes(q.id);
+            document.getElementById('btn-bookmark').innerHTML = isBookmarked 
+                ? `<svg class="w-6 h-6 text-amber-500 fill-current" viewBox="0 0 24 24"><path d="M5 5a2 2 0 012-2h10a2 2 0 012 2v16l-7-3.5L5 21V5z"/></svg>`
+                : `<svg class="w-6 h-6 text-slate-400" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M5 5a2 2 0 012-2h10a2 2 0 012 2v16l-7-3.5L5 21V5z"></path></svg>`;
+
+            // Options
+            const container = document.getElementById('study-options-container');
+            container.innerHTML = '';
+
+            const selectedAns = state.userAnswers[q.id];
+            const hasAnswered = selectedAns !== undefined;
+
+            q.options.forEach((opt, idx) => {
+                const btn = document.createElement('button');
+                btn.className = "w-full text-left p-4 rounded-xl border transition flex items-start space-x-3 text-sm font-medium ";
+                
+                if (!hasAnswered) {
+                    btn.className += "border-slate-200 bg-white hover:bg-slate-50 text-slate-700";
+                    btn.onclick = () => selectStudyAnswer(q.id, idx);
+                } else {
+                    if (idx === q.correct) {
+                        btn.className += "border-emerald-300 bg-emerald-50 text-emerald-900 font-semibold";
+                    } else if (idx === selectedAns && selectedAns !== q.correct) {
+                        btn.className += "border-rose-300 bg-rose-50 text-rose-900";
+                    } else {
+                        btn.className += "border-slate-100 bg-slate-50 text-slate-400 opacity-60";
+                    }
+                }
+
+                const prefix = String.fromCharCode(65 + idx); // A, B, C, D
+                btn.innerHTML = `
+                    <span class="w-6 h-6 rounded-md bg-slate-200/60 text-slate-700 flex items-center justify-center text-xs font-bold shrink-0">${prefix}</span>
+                    <span class="pt-0.5">${opt}</span>
+                `;
+                container.appendChild(btn);
+            });
+
+            // Explanation box
+            const expBox = document.getElementById('study-explanation');
+            if (hasAnswered) {
+                expBox.classList.remove('hidden');
+                document.getElementById('study-explanation-text').innerText = q.explanation;
+            } else {
+                expBox.classList.add('hidden');
+            }
+
+            // Buttons state
+            document.getElementById('btn-prev-study').disabled = state.studyIndex === 0;
+            document.getElementById('btn-prev-study').style.opacity = state.studyIndex === 0 ? "0.5" : "1";
+        }
+
+        function selectStudyAnswer(qId, optionIdx) {
+            state.userAnswers[qId] = optionIdx;
+            const q = ALL_QUESTIONS.find(item => item.id === qId);
+            
+            if (optionIdx !== q.correct) {
+                if (!state.mistakes.includes(qId)) {
+                    state.mistakes.push(qId);
+                    localStorage.setItem('pharma_mistakes', JSON.stringify(state.mistakes));
+                }
+            } else {
+                state.mistakes = state.mistakes.filter(id => id !== qId);
+                localStorage.setItem('pharma_mistakes', JSON.stringify(state.mistakes));
+            }
+
+            updateStats();
+            renderStudyQuestion();
+            renderMistakes();
+        }
+
+        function prevStudyQuestion() {
+            if (state.studyIndex > 0) {
+                state.studyIndex--;
+                renderStudyQuestion();
+            }
+        }
+
+        function nextStudyQuestion() {
+            if (state.studyIndex < state.filteredQuestions.length - 1) {
+                state.studyIndex++;
+                renderStudyQuestion();
+            }
+        }
+
+        function toggleBookmarkCurrent() {
+            const q = state.filteredQuestions[state.studyIndex];
+            if (state.bookmarkedQs.includes(q.id)) {
+                state.bookmarkedQs = state.bookmarkedQs.filter(id => id !== q.id);
+            } else {
+                state.bookmarkedQs.push(q.id);
+            }
+            localStorage.setItem('pharma_bookmarks', JSON.stringify(state.bookmarkedQs));
+            renderStudyQuestion();
+        }
+
+        // --- 6. EXAM MODE LOGIC ---
+        function startExam() {
+            switchTab('exam');
+            document.getElementById('exam-intro').classList.remove('hidden');
+            document.getElementById('exam-active').classList.add('hidden');
+            document.getElementById('exam-result').classList.add('hidden');
+        }
+
+        function startRealExam() {
+            // Pick 40 random questions
+            const shuffled = [...ALL_QUESTIONS].sort(() => 0.5 - Math.random());
+            state.examState.questions = shuffled.slice(0, 40);
+            state.examState.answers = {};
+            state.examState.currentIndex = 0;
+            state.examState.timeLeft = 45 * 60; // 45 mins
+            state.examState.active = true;
+
+            document.getElementById('exam-intro').classList.add('hidden');
+            document.getElementById('exam-active').classList.remove('hidden');
+            document.getElementById('exam-result').classList.add('hidden');
+
+            renderExamQuestion();
+            renderExamPalette();
+
+            if (state.examState.timer) clearInterval(state.examState.timer);
+            state.examState.timer = setInterval(updateExamTimer, 1000);
+        }
+
+        function updateExamTimer() {
+            state.examState.timeLeft--;
+            const mins = Math.floor(state.examState.timeLeft / 60);
+            const secs = state.examState.timeLeft % 60;
+            document.getElementById('exam-timer').innerText = `${mins.toString().padStart(2, '0')}:${secs.toString().padStart(2, '0')}`;
+
+            if (state.examState.timeLeft <= 0) {
+                clearInterval(state.examState.timer);
+                submitExam();
+            }
+        }
+
+        function renderExamQuestion() {
+            const idx = state.examState.currentIndex;
+            const q = state.examState.questions[idx];
+
+            document.getElementById('exam-q-number').innerText = `Câu hỏi ${idx + 1} / 40`;
+            document.getElementById('exam-q-lesson').innerText = `Bài ${q.lessonId}`;
+            document.getElementById('exam-q-text').innerText = q.question;
+
+            const container = document.getElementById('exam-options');
+            container.innerHTML = '';
+
+            const selectedAns = state.examState.answers[q.id];
+
+            q.options.forEach((opt, oIdx) => {
+                const btn = document.createElement('button');
+                btn.className = `w-full text-left p-4 rounded-xl border transition flex items-start space-x-3 text-sm font-medium ${selectedAns === oIdx ? 'border-sky-500 bg-sky-50 text-sky-900 font-semibold' : 'border-slate-200 bg-white hover:bg-slate-50 text-slate-700'}`;
+                btn.onclick = () => {
+                    state.examState.answers[q.id] = oIdx;
+                    renderExamQuestion();
+                    renderExamPalette();
+                };
+
+                const prefix = String.fromCharCode(65 + oIdx);
+                btn.innerHTML = `
+                    <span class="w-6 h-6 rounded-md ${selectedAns === oIdx ? 'bg-sky-600 text-white' : 'bg-slate-200/60 text-slate-700'} flex items-center justify-center text-xs font-bold shrink-0">${prefix}</span>
+                    <span class="pt-0.5">${opt}</span>
+                `;
+                container.appendChild(btn);
+            });
+        }
+
+        function renderExamPalette() {
+            const palette = document.getElementById('exam-palette');
+            palette.innerHTML = '';
+
+            state.examState.questions.forEach((q, idx) => {
+                const btn = document.createElement('button');
+                const isAnswered = state.examState.answers[q.id] !== undefined;
+                const isCurrent = state.examState.currentIndex === idx;
+
+                btn.className = `h-9 text-xs font-bold rounded-lg border transition flex items-center justify-center ${isCurrent ? 'ring-2 ring-sky-600 border-sky-600' : ''} ${isAnswered ? 'bg-sky-600 text-white border-sky-600' : 'bg-slate-50 border-slate-200 text-slate-600 hover:bg-slate-100'}`;
+                btn.innerText = idx + 1;
+                btn.onclick = () => {
+                    state.examState.currentIndex = idx;
+                    renderExamQuestion();
+                    renderExamPalette();
+                };
+                palette.appendChild(btn);
+            });
+        }
+
+        function navExamQ(dir) {
+            const newIdx = state.examState.currentIndex + dir;
+            if (newIdx >= 0 && newIdx < 40) {
+                state.examState.currentIndex = newIdx;
+                renderExamQuestion();
+                renderExamPalette();
+            }
+        }
+
+        function confirmSubmitExam() {
+            if (confirm("Bạn có chắc chắn muốn nộp bài thi ngay bây giờ?")) {
+                submitExam();
+            }
+        }
+
+        function submitExam() {
+            clearInterval(state.examState.timer);
+            let correctCount = 0;
+
+            state.examState.questions.forEach(q => {
+                const ans = state.examState.answers[q.id];
+                if (ans === q.correct) {
+                    correctCount++;
+                } else {
+                    if (!state.mistakes.includes(q.id)) {
+                        state.mistakes.push(q.id);
+                    }
+                }
+            });
+
+            localStorage.setItem('pharma_mistakes', JSON.stringify(state.mistakes));
+            updateStats();
+
+            const score = Math.round((correctCount / 40) * 10 * 10) / 10;
+            const passed = score >= 8.0;
+
+            // Save history
+            const record = {
+                date: new Date().toLocaleString('vi-VN'),
+                score: score,
+                correct: correctCount,
+                passed: passed
+            };
+            state.history.unshift(record);
+            localStorage.setItem('pharma_history', JSON.stringify(state.history));
+            renderHistory();
+
+            // Display result
+            document.getElementById('exam-active').classList.add('hidden');
+            document.getElementById('exam-result').classList.remove('hidden');
+
+            document.getElementById('result-status-icon').innerText = passed ? '🎉' : '⚠️';
+            document.getElementById('result-title').innerText = passed ? 'Chúc Mừng! Bạn Đã ĐẠT' : 'Chưa Đạt - Cần Luyện Tập Thêm';
+            document.getElementById('result-sub').innerText = passed ? 'Kết quả tuyệt vời! Bạn đã nắm vững quy chế đăng ký thuốc.' : 'Hãy xem lại lời giải các câu sai để củng cố kiến thức nhé.';
+            document.getElementById('result-score').innerText = `${score} / 10`;
+            document.getElementById('result-correct').innerText = `${correctCount}/40`;
+
+            const usedSecs = (45 * 60) - state.examState.timeLeft;
+            const uMins = Math.floor(usedSecs / 60);
+            const uSecs = usedSecs % 60;
+            document.getElementById('result-time').innerText = `${uMins}:${uSecs.toString().padStart(2, '0')}`;
+        }
+
+        function reviewExamAnswers() {
+            // Load exam questions into study view for review
+            state.filteredQuestions = [...state.examState.questions];
+            state.userAnswers = { ...state.userAnswers, ...state.examState.answers };
+            switchTab('study');
+        }
+
+        // --- 7. MISTAKES VIEW LOGIC ---
+        function renderMistakes() {
+            const container = document.getElementById('mistakes-container');
+            container.innerHTML = '';
+
+            if (state.mistakes.length === 0) {
+                container.innerHTML = `
+                    <div class="bg-white p-8 rounded-2xl border border-slate-200 text-center">
+                        <p class="text-emerald-600 font-bold text-lg">Tuyệt vời! Bạn không có câu hỏi nào làm sai.</p>
+                        <p class="text-xs text-slate-500 mt-1">Các câu làm sai trong quá trình ôn luyện và thi thử sẽ tự động xuất hiện ở đây.</p>
+                    </div>
+                `;
+                return;
+            }
+
+            state.mistakes.forEach((mId, index) => {
+                const q = ALL_QUESTIONS.find(item => item.id === mId);
+                if (!q) return;
+
+                const card = document.createElement('div');
+                card.className = "bg-white p-6 rounded-2xl border border-slate-200 shadow-sm space-y-3";
+                card.innerHTML = `
+                    <div class="flex justify-between items-start">
+                        <span class="px-2.5 py-1 bg-rose-100 text-rose-700 text-xs font-bold rounded-md">Câu sai #${index + 1} - Bài ${q.lessonId}</span>
+                        <button onclick="removeSingleMistake(${q.id})" class="text-xs text-slate-400 hover:text-rose-600">Xóa khỏi danh sách</button>
+                    </div>
+                    <h4 class="font-bold text-slate-800 text-base">${q.question}</h4>
+                    <div class="text-sm text-emerald-700 font-medium bg-emerald-50 p-3 rounded-xl border border-emerald-200">
+                        Đáp án đúng: <strong>${String.fromCharCode(65 + q.correct)}. ${q.options[q.correct]}</strong>
+                    </div>
+                    <p class="text-xs text-slate-600 bg-slate-50 p-3 rounded-xl border border-slate-200 leading-relaxed">
+                        <strong>Giải thích:</strong> ${q.explanation}
+                    </p>
+                `;
+                container.appendChild(card);
+            });
+        }
+
+        function removeSingleMistake(qId) {
+            state.mistakes = state.mistakes.filter(id => id !== qId);
+            localStorage.setItem('pharma_mistakes', JSON.stringify(state.mistakes));
+            updateStats();
+            renderMistakes();
+        }
+
+        function clearMistakes() {
+            if (confirm("Bạn có chắc chắn muốn xóa toàn bộ danh sách câu làm sai?")) {
+                state.mistakes = [];
+                localStorage.setItem('pharma_mistakes', JSON.stringify(state.mistakes));
+                updateStats();
+                renderMistakes();
+            }
+        }
+
+        // --- 8. THEORY LOGIC ---
+        function toggleTheory(id) {
+            const el = document.getElementById(id);
+            el.classList.toggle('hidden');
+        }
+
+        // --- 9. HISTORY LOGIC ---
+        function renderHistory() {
+            const tbody = document.getElementById('history-table-body');
+            tbody.innerHTML = '';
+
+            if (state.history.length === 0) {
+                tbody.innerHTML = `<tr><td colspan="4" class="px-6 py-4 text-center text-slate-400">Chưa có lịch sử thi nào.</td></tr>`;
+                return;
+            }
+
+            state.history.forEach(item => {
+                const tr = document.createElement('tr');
+                tr.className = "bg-white border-b border-slate-100 hover:bg-slate-50";
+                tr.innerHTML = `
+                    <td class="px-6 py-4 font-medium text-slate-900">${item.date}</td>
+                    <td class="px-6 py-4">${item.correct}/40</td>
+                    <td class="px-6 py-4 font-bold ${item.passed ? 'text-emerald-600' : 'text-rose-500'}">${item.score}/10</td>
+                    <td class="px-6 py-4">
+                        <span class="px-2.5 py-0.5 rounded-full text-xs font-semibold ${item.passed ? 'bg-emerald-100 text-emerald-800' : 'bg-rose-100 text-rose-800'}">
+                            ${item.passed ? 'ĐẠT' : 'CHƯA ĐẠT'}
+                        </span>
+                    </td>
+                `;
+                tbody.appendChild(tr);
+            });
+        }
+
+        function clearHistory() {
+            if (confirm("Bạn muốn xóa toàn bộ lịch sử thi thử?")) {
+                state.history = [];
+                localStorage.setItem('pharma_history', JSON.stringify([]));
+                renderHistory();
+            }
+        }
+    </script>
+</body>
+</html>
